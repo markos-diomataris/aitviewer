@@ -93,7 +93,7 @@ class Plane(Node):
         self.prog['win_size'].value = kwargs['window_size']
 
         self.set_camera_matrices(self.prog, camera, **kwargs)
-        set_lights_in_program(self.prog, kwargs['lights'], kwargs['shadows_enabled'], kwargs['ambient_strength'])
+        set_lights_in_program(self.prog, kwargs['lights'], kwargs['shadows_enabled'])
         set_material_properties(self.prog, self.material)
         self.receive_shadow(self.prog, **kwargs)
         self.vao.render(moderngl.TRIANGLE_STRIP)
@@ -114,7 +114,7 @@ class ChessboardPlane(Node):
                  n_tiles,
                  color1=(0.0, 0.0, 0.0, 1.0),
                  color2=(1.0, 1.0, 1.0, 1.0),
-                 plane='xz',
+                 plane='xy',
                  height=0.0,
                  tiling=True,
                  icon="\u008b",
@@ -192,7 +192,7 @@ class ChessboardPlane(Node):
         self.set_camera_matrices(self.prog, camera, **kwargs)
         self.receive_shadow(self.prog, **kwargs)
 
-        set_lights_in_program(self.prog, kwargs['lights'], kwargs['shadows_enabled'], kwargs['ambient_strength'])
+        set_lights_in_program(self.prog, kwargs['lights'], kwargs['shadows_enabled'])
         set_material_properties(self.prog, self.material)
 
         self.vao.render(moderngl.TRIANGLE_STRIP)

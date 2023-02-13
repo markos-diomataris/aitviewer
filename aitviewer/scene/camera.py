@@ -189,14 +189,6 @@ class Camera(Node, CameraInterface):
             if self.path[1] is not None:
                 self.path[1].enabled = enabled
 
-    @property
-    def bounds(self):
-        return self.mesh.bounds
-
-    @property
-    def current_bounds(self):
-        return self.mesh.current_bounds
-
     def hide_frustum(self):
         if self.frustum:
             self.remove(self.frustum)
@@ -305,10 +297,10 @@ class Camera(Node, CameraInterface):
         self.path = (path_spheres, path_lines)
         self.current_frame_id = frame_id
 
-    def render_outline(self, *args, **kwargs):
+    def render_outline(self, ctx, camera, prog):
         # Only render the mesh outline, this avoids outlining
         # the frustum and coordinate system visualization.
-        self.mesh.render_outline(*args, **kwargs)
+        self.mesh.render_outline(ctx, camera, prog)
 
     def view_from_camera(self):
         """If the viewer is specified for this camera, change the current view to view from this camera"""
@@ -370,7 +362,6 @@ class WeakPerspectiveCamera(Camera):
 
         assert scale.shape[0] == translation.shape[0], "Number of frames in scale and translation must match"
 
-        kwargs['gui_affine'] = False
         super(WeakPerspectiveCamera, self).__init__(n_frames=scale.shape[0], viewer=viewer, **kwargs)
 
         self.scale_factor = scale
@@ -443,11 +434,6 @@ class WeakPerspectiveCamera(Camera):
             else:
                 self.hide_frustum()
 
-        imgui.spacing()
-        imgui.separator()
-        imgui.spacing()
-        super(Camera, self).gui_context_menu(imgui)
-
 
 class OpenCVCamera(Camera):
     """ A camera described by extrinsics and intrinsics in the format used by OpenCV """
@@ -473,7 +459,6 @@ class OpenCVCamera(Camera):
         assert self.K.shape[0] == 1 or self.Rt.shape[0] == 1 or self.K.shape[0] == self.Rt.shape[0], (
             f"extrinsics and intrinsics array shape mismatch: {self.Rt.shape} and {self.K.shape}")
 
-        kwargs['gui_affine'] = False
         super(OpenCVCamera, self).__init__(viewer=viewer, n_frames=max(self.K.shape[0], self.Rt.shape[0]), **kwargs)
         self.position = self.current_position
         self.rotation = self.current_rotation
@@ -627,11 +612,6 @@ class OpenCVCamera(Camera):
             else:
                 self.hide_frustum()
 
-        imgui.spacing()
-        imgui.separator()
-        imgui.spacing()
-        super(Camera, self).gui_context_menu(imgui)
-
 
 class PinholeCamera(Camera):
     """
@@ -643,7 +623,7 @@ class PinholeCamera(Camera):
         assert positions.shape[0] == 1 or targets.shape[0] == 1 or positions.shape[0] == targets.shape[0], (
             f"position and target array shape mismatch: {positions.shape} and {targets.shape}")
 
-        self._world_up = np.array([0.0, 1.0, 0.0])
+        self._world_up = np.array([0.0, 0.0, 1.0])
         self._targets = targets
         super(PinholeCamera, self).__init__(position=position, n_frames=targets.shape[0], viewer=viewer, **kwargs)
 
@@ -677,7 +657,6 @@ class PinholeCamera(Camera):
     @property
     def rotation(self):
         return np.array([-self.right, self.up, -self.forward]).T
-
 
     def update_matrices(self, width, height):
         # Compute projection matrix.
@@ -719,13 +698,6 @@ class PinholeCamera(Camera):
 
         return OpenCVCamera(K, Rts, cols, rows, near=self.near, far=self.far, viewer=self.viewer, **kwargs)
 
-    def gui_affine(self, imgui):
-        """ Render GUI for affine transformations"""
-        # Position controls
-        u, pos = imgui.drag_float3('Position##pos{}'.format(self.unique_name), *self.position, 0.1, format='%.2f')
-        if u:
-            self.position = pos
-
     @hooked
     def gui(self, imgui):
         u, show = imgui.checkbox("Show frustum", self.frustum is not None)
@@ -744,11 +716,6 @@ class PinholeCamera(Camera):
             else:
                 self.hide_frustum()
 
-        imgui.spacing()
-        imgui.separator()
-        imgui.spacing()
-        super(Camera, self).gui_context_menu(imgui)
-
 
 class ViewerCamera(CameraInterface):
     """
@@ -765,7 +732,7 @@ class ViewerCamera(CameraInterface):
         # Default camera settings.
         self._position = np.array([0.0, 0.0, 2.5])
         self.target = np.array([0.0, 0.0, 0.0])
-        self._up = np.array([0.0, 1.0, 0.0])
+        self._up = np.array([0.0, 0.0, 1.0])
 
         self.ZOOM_FACTOR = 4
         self.ROT_FACTOR = 0.0025
