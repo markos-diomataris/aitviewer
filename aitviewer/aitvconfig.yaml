@@ -1,11 +1,9 @@
 # Access SMPL models.
-smplx_models: "../data/smplx_models"
-star_models: "../data/star_models"
-
-# Access to datasets.
 datasets:
-  amass:
-    "../data/amass"
+  smplx:
+    "~/models/smplx"
+smplx_models: "/Users/mdiomataris/models/smplx/SMPLX_NEUTRAL.npz"
+# star_models: "../data/star_models"
 
 # Pytorch configuration.
 device: "cuda:0"

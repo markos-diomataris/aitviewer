@@ -99,7 +99,12 @@ class Plane(Node):
         self.prog["win_size"].value = kwargs["window_size"]
 
         self.set_camera_matrices(self.prog, camera, **kwargs)
-        set_lights_in_program(self.prog, kwargs['lights'], kwargs['shadows_enabled'])
+        set_lights_in_program(
+            self.prog,
+            kwargs["lights"],
+            kwargs["shadows_enabled"],
+            kwargs["ambient_strength"],
+        )
         set_material_properties(self.prog, self.material)
         self.receive_shadow(self.prog, **kwargs)
         self.vao.render(moderngl.TRIANGLE_STRIP)
@@ -115,16 +120,19 @@ class Plane(Node):
 
 class ChessboardPlane(Node):
     """A plane that is textured like a chessboard."""
-    def __init__(self,
-                 side_length,
-                 n_tiles,
-                 color1=(0.0, 0.0, 0.0, 1.0),
-                 color2=(1.0, 1.0, 1.0, 1.0),
-                 plane='xy',
-                 height=0.0,
-                 tiling=True,
-                 icon="\u008b",
-                 **kwargs):
+
+    def __init__(
+        self,
+        side_length,
+        n_tiles,
+        color1=(0.0, 0.0, 0.0, 1.0),
+        color2=(1.0, 1.0, 1.0, 1.0),
+        plane="xz",
+        height=0.0,
+        tiling=True,
+        icon="\u008b",
+        **kwargs,
+    ):
         """
         Initializer.
         :param side_length: Length of one side of the plane.
@@ -197,7 +205,12 @@ class ChessboardPlane(Node):
         self.set_camera_matrices(self.prog, camera, **kwargs)
         self.receive_shadow(self.prog, **kwargs)
 
-        set_lights_in_program(self.prog, kwargs['lights'], kwargs['shadows_enabled'])
+        set_lights_in_program(
+            self.prog,
+            kwargs["lights"],
+            kwargs["shadows_enabled"],
+            kwargs["ambient_strength"],
+        )
         set_material_properties(self.prog, self.material)
 
         self.vao.render(moderngl.TRIANGLE_STRIP)
