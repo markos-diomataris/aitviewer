@@ -11,7 +11,8 @@
     uniform mat4 view_projection_matrix;
     uniform mat4 model_matrix;
 
-    out vec3 pos;
+    out vec4 pos;
+    out vec3 local_pos;
     flat out int instance_id;
 
 
@@ -26,6 +27,7 @@
         gl_Position = view_projection_matrix * vec4(world_position, 1.0);
         instance_id = gl_InstanceID;
 
-        pos = in_position;
+        pos = vec4(world_position, 1.0);
+        local_pos = in_position;
     }
 #endif

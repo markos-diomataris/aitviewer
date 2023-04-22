@@ -16,12 +16,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from moderngl_window.context.pyqt5 import Window
-from PyQt5 import QtOpenGL, QtWidgets
+from PyQt5 import QtGui, QtOpenGL, QtWidgets
 
 """
 Window class adapted from  moderngl_window.context.pyqt5.Window.
 Only slight changes are made to avoid a crash with Python >= 3.10.
 """
+
 
 class PyQt5Window(Window):
     def __init__(self, **kwargs):
@@ -60,7 +61,8 @@ class PyQt5Window(Window):
         if self.resizable:
             # Ensure a valid resize policy when window is resizable
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding,
+                QtWidgets.QSizePolicy.Expanding,
+                QtWidgets.QSizePolicy.Expanding,
             )
             self._widget.setSizePolicy(size_policy)
             self._widget.resize(self.width, self.height)
@@ -109,3 +111,6 @@ class PyQt5Window(Window):
         self._buffer_height = self._height * self._widget.devicePixelRatio()
 
         self.set_default_viewport()
+
+    def _set_icon(self, icon_path: str) -> None:
+        self._widget.setWindowIcon(QtGui.QIcon(str(icon_path)))

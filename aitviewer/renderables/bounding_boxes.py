@@ -16,9 +16,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import numpy as np
 
-from aitviewer.scene.node import Node
 from aitviewer.renderables.lines import Lines
 from aitviewer.renderables.spheres import Spheres
+from aitviewer.scene.node import Node
 
 
 class BoundingBoxes(Node):
@@ -26,11 +26,7 @@ class BoundingBoxes(Node):
     Draw bounding boxes.
     """
 
-    def __init__(self,
-                 vertices,
-                 thickness=0.005,
-                 color=(0.0, 0.0, 1.0, 1.0),
-                 **kwargs):
+    def __init__(self, vertices, thickness=0.005, color=(0.0, 0.0, 1.0, 1.0), **kwargs):
         """
         Initializer.
         :param vertices: Set of 3D coordinates as a np array of shape (N, 8, 3). The vertices will be connected in the
@@ -50,9 +46,23 @@ class BoundingBoxes(Node):
 
         self.vertices = vertices
 
-        self.lines = Lines(lines=self._get_line_coords(), mode='lines', r_base=thickness, color=self.color)
-        self.spheres = Spheres(positions=self.vertices, radius=thickness, color=self.color)
+        self.lines = Lines(
+            lines=self._get_line_coords(),
+            mode="lines",
+            r_base=thickness,
+            color=self.color,
+            cast_shadow=False,
+        )
+        self.spheres = Spheres(positions=self.vertices, radius=thickness, color=self.color, cast_shadow=False)
         self._add_nodes(self.lines, self.spheres, show_in_hierarchy=False)
+
+    @property
+    def bounds(self):
+        return self.get_bounds(self.vertices)
+
+    @property
+    def current_bounds(self):
+        return self.get_bounds(self.vertices[self.current_frame_id])
 
     @staticmethod
     def from_min_max_diagonal(v_min, v_max, **kwargs):
@@ -76,7 +86,7 @@ class BoundingBoxes(Node):
         return BoundingBoxes(vertices, **kwargs)
 
     def _get_line_coords(self):
-        lines = np.zeros((self.n_frames, 12*2, 3), dtype=self.vertices.dtype)
+        lines = np.zeros((self.n_frames, 12 * 2, 3), dtype=self.vertices.dtype)
 
         # Bottom 0-1-2-3-0.
         lines[:, 0:2] = self.vertices[:, 0:2]
